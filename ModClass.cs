@@ -11,12 +11,12 @@ namespace EnemiesFightingEachOther
     {
         internal static EnemiesFightingEachOther Instance;
 
+        //List<Collider2D> enemyColliders;
+
         public override List<ValueTuple<string, string>> GetPreloadNames()
         {
             return new List<ValueTuple<string, string>>
             {
-                //new ValueTuple<string, string>("GG_Hornet_2", "Boss Holder/Hornet Boss 2")
-                //("GG_Hornet_2", "Boss Holder/Hornet Boss 2")
                 ("GG_Gruz_Mother", "_Enemies/Giant Fly")
             };
         }
@@ -33,6 +33,8 @@ namespace EnemiesFightingEachOther
             Log("Initializing");
 
             Instance = this;
+
+            //enemyColliders = new List<Collider2D>();
 
             // Get preloaded objects
             Log("Accessing preloads");
@@ -51,10 +53,26 @@ namespace EnemiesFightingEachOther
         {
             if (Input.GetKeyDown(KeyCode.O))
             {
-                Log("Key Pressed");
+                Log("Spawning Gruz Mother");
+
+                // Instantiate enemy
                 GameObject newEnemy = UObject.Instantiate(preloads["GG_Gruz_Mother"]["_Enemies/Giant Fly"],
                     HeroController.instance.transform.position, Quaternion.identity);
                 newEnemy.SetActive(true);
+                newEnemy.layer = 17;
+
+                // Let this enemy damage other enemies
+                DamageEnemies damageEnemies = newEnemy.AddComponent<DamageEnemies>();
+                damageEnemies.damageDealt = 10;
+                //Collider2D col = newEnemy.GetComponent<Collider2D>();
+                //enemyColliders.Add(col);
+                
+                // Allow collisions with every other enemy
+                //for (int i = 0; i < enemyColliders.Count; i++)
+                //{
+                //    Log($"{col.name}, {enemyColliders[i].name}");
+                //    Physics2D.IgnoreCollision(col, enemyColliders[i], false);
+                //}
             }
         }
     }
