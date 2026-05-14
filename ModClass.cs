@@ -65,6 +65,7 @@ namespace EnemiesFightingEachOther
                 // Let this enemy damage other enemies
                 DamageEnemies damageEnemies = damageEnemiesGO.AddComponent<DamageEnemies>();
                 damageEnemies.damageDealt = 10;
+                damageEnemies.ignoreInvuln = false;
 
                 // Give this child object a collider to interact with other enemies
                 Collider2D parentCol = newEnemy.GetComponent<Collider2D>();
