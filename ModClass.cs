@@ -69,8 +69,12 @@ namespace EnemiesFightingEachOther
                 hiveKnight.AddComponent<FSMWaker>();
 
                 // Disable spawning bees (bees crash the game)
-                PlayMakerFSM control = hiveKnight.LocateMyFSM("Control");
-                Utils.RemoveElementFromSendRandomEventV3(control, "Phase 3", 1, "BEE ROAR");
+                PlayMakerFSM fsm = hiveKnight.LocateMyFSM("Control");
+                Utils.RemoveElementFromSendRandomEventV3(fsm, "Phase 3", 1, "BEE ROAR");
+
+                // Make sure he spawns at the player's y-level
+                float playerYLevel = HeroController.instance.transform.position.y;
+                fsm.FsmVariables.FindFsmFloat("Ground Y").Value = playerYLevel + 1.0f; // Add 1 so he doesn't spawn partially in the floor
             }
         }
     }
