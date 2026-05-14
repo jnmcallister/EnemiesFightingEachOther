@@ -11,8 +11,6 @@ namespace EnemiesFightingEachOther
     {
         internal static EnemiesFightingEachOther Instance;
 
-        //List<Collider2D> enemyColliders;
-
         public override List<ValueTuple<string, string>> GetPreloadNames()
         {
             return new List<ValueTuple<string, string>>
@@ -26,15 +24,13 @@ namespace EnemiesFightingEachOther
         {
             Instance = this;
         }
-        public override string GetVersion() => "0.1.0";
+        public override string GetVersion() => "0.1.1";
 
         public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
         {
             Log("Initializing");
 
             Instance = this;
-
-            //enemyColliders = new List<Collider2D>();
 
             // Get preloaded objects
             Log("Accessing preloads");
@@ -59,20 +55,21 @@ namespace EnemiesFightingEachOther
                 GameObject newEnemy = UObject.Instantiate(preloads["GG_Gruz_Mother"]["_Enemies/Giant Fly"],
                     HeroController.instance.transform.position, Quaternion.identity);
                 newEnemy.SetActive(true);
-                newEnemy.layer = 17;
+
+                // Create a child object which will handle dealing damage to other enemies
+                // This is done because objects on the enemy layer don't collide with each other
+                GameObject damageEnemiesGO = new GameObject("Damage Enemies");
+                damageEnemiesGO.transform.SetParent(newEnemy.transform, false);
+                damageEnemiesGO.layer = 17; // Hero attack layer
 
                 // Let this enemy damage other enemies
-                DamageEnemies damageEnemies = newEnemy.AddComponent<DamageEnemies>();
+                DamageEnemies damageEnemies = damageEnemiesGO.AddComponent<DamageEnemies>();
                 damageEnemies.damageDealt = 10;
-                //Collider2D col = newEnemy.GetComponent<Collider2D>();
-                //enemyColliders.Add(col);
-                
-                // Allow collisions with every other enemy
-                //for (int i = 0; i < enemyColliders.Count; i++)
-                //{
-                //    Log($"{col.name}, {enemyColliders[i].name}");
-                //    Physics2D.IgnoreCollision(col, enemyColliders[i], false);
-                //}
+
+                // Give this child object a collider to interact with other enemies
+                Collider2D parentCol = newEnemy.GetComponent<Collider2D>();
+                Collider2D childCol = parentCol.CopyCollider2DTo(damageEnemiesGO);
+                childCol.isTrigger = true; // Make sure this doesn't collide with the ground
             }
         }
     }
