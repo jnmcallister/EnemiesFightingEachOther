@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using HutongGames.PlayMaker;
 using Modding;
 using UnityEngine;
 using UObject = UnityEngine.Object;
+using Satchel;
 
 namespace EnemiesFightingEachOther
 {
@@ -11,11 +13,14 @@ namespace EnemiesFightingEachOther
     {
         internal static EnemiesFightingEachOther Instance;
 
+        int count = 1;
+
         public override List<ValueTuple<string, string>> GetPreloadNames()
         {
             return new List<ValueTuple<string, string>>
             {
-                ("GG_Gruz_Mother", "_Enemies/Giant Fly")
+                ("GG_Gruz_Mother", "_Enemies/Giant Fly"),
+                ("GG_Hive_Knight", "Battle Scene/Hive Knight"),
             };
         }
         public Dictionary<string, Dictionary<string, GameObject>> preloads;
@@ -32,24 +37,40 @@ namespace EnemiesFightingEachOther
 
             Instance = this;
 
+
             // Get preloaded objects
             Log("Accessing preloads");
-            var bossPrefab = preloadedObjects["GG_Gruz_Mother"]["_Enemies/Giant Fly"];
-            UObject.DontDestroyOnLoad(bossPrefab);
+
+            UObject.DontDestroyOnLoad(preloadedObjects["GG_Gruz_Mother"]["_Enemies/Giant Fly"]);
+            UObject.DontDestroyOnLoad(preloadedObjects["GG_Hive_Knight"]["Battle Scene/Hive Knight"]);
             preloads = preloadedObjects;
+
             Log("Finished accessing preloads");
+
 
             // Subscribe to hooks
             ModHooks.HeroUpdateHook += OnHeroUpdate;
+
 
             Log("Initialized");
         }
 
         public void OnHeroUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.O))
+            if (Input.GetKeyDown(KeyCode.O)) // Gruz mother
             {
                 EnemySpawningUtils.SpawnEnemy(preloads["GG_Gruz_Mother"]["_Enemies/Giant Fly"]);
+            }
+            if (Input.GetKeyDown(KeyCode.P)) // Hive knight
+            {
+                GameObject hiveKnight = EnemySpawningUtils.SpawnEnemy(preloads["GG_Hive_Knight"]["Battle Scene/Hive Knight"]);
+
+                // Keep hive knight awake
+                hiveKnight.AddComponent<FSMWaker>();
+
+                // Disable spawning bees (bees crash the game)
+                PlayMakerFSM control = hiveKnight.LocateMyFSM("Control");
+                Utils.RemoveElementFromSendRandomEventV3(control, "Phase 3", 1, "BEE ROAR");
             }
         }
     }

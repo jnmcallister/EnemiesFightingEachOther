@@ -1,5 +1,9 @@
-﻿using System;
+﻿using Satchel;
+using System;
 using UnityEngine;
+using System.Linq;
+using HutongGames.PlayMaker;
+using HutongGames.PlayMaker.Actions;
 
 public static class Utils
 {
@@ -85,4 +89,37 @@ public static class Utils
 
         return copyCol;
     }
+
+    public static void RemoveElementFromSendRandomEventV3(PlayMakerFSM fsm, string stateName, int actionIndex, string eventNameToRemove)
+    {
+        // Get and cast the action
+        var randomAction = fsm.GetAction<SendRandomEventV3>(stateName, actionIndex);
+        if (randomAction == null) return;
+
+        // Find the index of the event that should be removed
+        int targetIndex = Array.FindIndex(randomAction.events, e => e.Name == eventNameToRemove);
+
+        // If the event isn't found in this action, return
+        if (targetIndex == -1) return;
+
+        // Convert arrays to lists, remove the item at the specific index, and reassign
+        // Playmaker uses several parallel arrays, so all need to be updated
+        randomAction.events = randomAction.events.Where((val, idx) => idx != targetIndex).ToArray();
+
+        if (randomAction.weights != null && randomAction.weights.Length > targetIndex)
+            randomAction.weights = randomAction.weights.Where((val, idx) => idx != targetIndex).ToArray();
+
+        if (randomAction.trackingInts != null && randomAction.trackingInts.Length > targetIndex)
+            randomAction.trackingInts = randomAction.trackingInts.Where((val, idx) => idx != targetIndex).ToArray();
+
+        if (randomAction.eventMax != null && randomAction.eventMax.Length > targetIndex)
+            randomAction.eventMax = randomAction.eventMax.Where((val, idx) => idx != targetIndex).ToArray();
+
+        if (randomAction.trackingIntsMissed != null && randomAction.trackingIntsMissed.Length > targetIndex)
+            randomAction.trackingIntsMissed = randomAction.trackingIntsMissed.Where((val, idx) => idx != targetIndex).ToArray();
+
+        if (randomAction.missedMax != null && randomAction.missedMax.Length > targetIndex)
+            randomAction.missedMax = randomAction.missedMax.Where((val, idx) => idx != targetIndex).ToArray();
+    }
+
 }

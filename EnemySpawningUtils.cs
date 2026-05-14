@@ -11,7 +11,7 @@ public static class EnemySpawningUtils
 	/// Spawns in an enemy at the player's position
 	/// </summary>
 	/// <param name="enemyGO"></param>
-	public static void SpawnEnemy(GameObject enemyGO)
+	public static GameObject SpawnEnemy(GameObject enemyGO)
 	{
         // Instantiate enemy
         GameObject newEnemy = UObject.Instantiate(enemyGO,
@@ -35,6 +35,8 @@ public static class EnemySpawningUtils
         childCol.isTrigger = true; // Make sure this doesn't collide with the ground
 
         // Log statement
-        Modding.Logger.Log($"Spawning {newEnemy.name}");
+        Modding.Logger.Log($"[EnemiesFightingEachOther] Spawning {newEnemy.name}");
+
+        return newEnemy;
     }
 }
